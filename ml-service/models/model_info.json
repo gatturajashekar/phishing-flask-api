@@ -1,0 +1,29 @@
+{
+    "model_version": "1.1",
+    "algorithm": "RandomForest",
+    "n_estimators": 300,
+    "max_depth": 16,
+    "features_used": 13,
+    "feature_names": [
+        "url_length",
+        "has_ip",
+        "has_at_symbol",
+        "hyphen_in_domain",
+        "subdomain_count",
+        "https",
+        "path_length",
+        "digit_ratio",
+        "special_char_ratio",
+        "high_digit_ratio",
+        "long_url",
+        "hostname_length",
+        "domain_token_count"
+    ],
+    "training_samples": 16000,
+    "training_data": [
+        "PhishTank",
+        "Majestic Million"
+    ],
+    "training_date": "2026-03-14 09:27:23",
+    "accuracy": 0.9690625
+}

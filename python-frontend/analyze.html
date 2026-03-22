@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>URL Analysis Report</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #0e1b2b;
+  color: white;
+  margin: 0;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.card {
+  background: #132b45;
+  padding: 40px;
+  border-radius: 12px;
+  width: 450px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+}
+
+h1 {
+  text-align: center;
+  color: #40e0d0;
+}
+
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 0;
+}
+
+.button {
+  margin-top: 25px;
+  padding: 12px;
+  width: 100%;
+  background: #40e0d0;
+  color: black;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: #2bb7a8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <div class="card">
+
+    <h1>URL Analysis Report</h1>
+
+    <div class="result-item">
+      <strong>Analyzed URL</strong>
+      <span id="url"></span>
+    </div>
+
+    <div class="result-item">
+      <strong>Overall Verdict</strong>
+      <span id="verdict"></span>
+    </div>
+
+    <div class="result-item">
+      <strong>ML Risk Score</strong>
+      <span id="score"></span>
+    </div>
+
+    <div class="result-item">
+      <strong>Explanation</strong>
+      <span id="reason"></span>
+    </div>
+
+    <button class="button" onclick="goBack()">Check Another URL</button>
+
+  </div>
+</div>
+
+<script>
+const token = localStorage.getItem("token");
+if (!token) window.location.href = "login.html";
+
+const result = JSON.parse(sessionStorage.getItem("analysisResult"));
+
+if (!result) {
+  window.location.href = "home.html";
+}
+
+document.getElementById("url").textContent = result.url;
+document.getElementById("verdict").textContent = result.risk.toUpperCase();
+document.getElementById("score").textContent = result.score;
+document.getElementById("reason").textContent = result.message;
+
+function goBack() {
+  window.location.href = "home.html";
+}
+</script>
+
+</body>
+</html>

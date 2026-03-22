@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+<title>Phishing Analyzer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:"Segoe UI",sans-serif;
+background:linear-gradient(135deg,#0f172a,#1e293b);
+color:white;
+overflow-y:auto;
+}
+
+/* NAVBAR */
+
+.navbar{
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+padding:18px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+.navbar h1{
+margin:0;
+font-size:22px;
+letter-spacing:1px;
+font-weight:600;
+}
+
+.profile{
+font-size:22px;
+cursor:pointer;
+transition:transform 0.2s ease;
+}
+
+.profile:hover{
+transform:scale(1.2);
+}
+
+/* CONTAINER */
+
+.container{
+min-height:calc(100vh - 80px);
+display:flex;
+justify-content:center;
+align-items:flex-start;
+padding:40px 20px;
+}
+
+/* CARD */
+
+.card{
+background:rgba(255,255,255,0.08);
+backdrop-filter:blur(20px);
+padding:40px;
+border-radius:20px;
+width:540px;
+max-width:95%;
+box-shadow:0 15px 40px rgba(0,0,0,0.4);
+text-align:center;
+transition:0.3s ease;
+margin-bottom:60px;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+
+.card h2{
+margin-bottom:25px;
+font-weight:500;
+}
+
+/* INPUT */
+
+input{
+width:100%;
+padding:15px;
+border-radius:12px;
+border:none;
+outline:none;
+margin-bottom:20px;
+font-size:15px;
+background:rgba(255,255,255,0.1);
+color:white;
+}
+
+input::placeholder{
+color:#cbd5e1;
+}
+
+/* BUTTON */
+
+button{
+width:100%;
+padding:15px;
+border-radius:12px;
+border:none;
+font-size:15px;
+font-weight:600;
+cursor:pointer;
+background:linear-gradient(90deg,#3b82f6,#6366f1);
+color:white;
+transition:0.3s ease;
+}
+
+button:hover:not(:disabled){
+opacity:0.9;
+transform:translateY(-2px);
+}
+
+button:disabled{
+background:#475569;
+cursor:not-allowed;
+}
+
+/* RESULT BOX */
+
+.result-box{
+display:none;
+margin-top:25px;
+padding:30px;
+border-radius:12px;
+background:rgba(0,0,0,0.25);
+text-align:left;
+}
+
+/* GAUGE */
+
+.gauge{
+width:260px;
+margin:0 auto 30px auto;
+position:relative;
+}
+
+.gauge-body{
+width:100%;
+height:130px;
+background:#e5e7eb;
+border-top-left-radius:260px;
+border-top-right-radius:260px;
+overflow:hidden;
+position:relative;
+}
+
+.gauge-fill{
+position:absolute;
+top:100%;
+left:0;
+width:100%;
+height:100%;
+background:#22c55e;
+transform-origin:center top;
+transform:rotate(0turn);
+transition:transform 1s ease-out;
+}
+
+.gauge-cover{
+width:70%;
+height:140px;
+background:#0f172a;
+border-radius:50%;
+position:absolute;
+top:35px;
+left:50%;
+transform:translateX(-50%);
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:26px;
+font-weight:bold;
+color:white;
+}
+
+/* FEATURE LIST */
+
+.feature-list{
+margin-top:15px;
+padding-left:20px;
+}
+
+.feature-list li{
+margin-bottom:5px;
+font-size:14px;
+}
+
+/* FOOTER */
+
+.footer-text{
+margin-top:20px;
+font-size:14px;
+color:#cbd5e1;
+}
+
+.footer-text span{
+cursor:pointer;
+text-decoration:underline;
+}
+
+.footer-text span:hover{
+color:white;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="navbar">
+<h1>🛡 Phishing Detector</h1>
+<div class="profile" onclick="goProfile()">👤</div>
+</div>
+
+<div class="container">
+
+<div class="card">
+
+<h2>Analyze Website URL</h2>
+
+<input id="urlInput" placeholder="https://example.com">
+
+<button id="analyzeBtn" onclick="analyze()">Analyze Website</button>
+
+<div id="resultBox" class="result-box">
+
+<div class="gauge">
+<div class="gauge-body">
+<div class="gauge-fill"></div>
+<div class="gauge-cover">
+<span id="gaugeScore">0</span>
+</div>
+</div>
+</div>
+
+<h3 id="riskText"></h3>
+<p id="scoreText"></p>
+<p id="messageText"></p>
+
+<div id="featureBox"></div>
+
+</div>
+
+<div class="footer-text">
+Want to review your activity?
+<span onclick="goProfile()">Profile</span>
+</div>
+
+</div>
+</div>
+
+<script>
+
+/* AUTH CHECK */
+const token = localStorage.getItem("token");
+
+if(!token){
+    window.location.href = "login.html";
+}
+
+/* PROFILE PAGE */
+function goProfile(){
+    window.location.href = "profile.html";
+}
+
+/* URL VALIDATION */
+function isValidURL(str){
+    try{
+        new URL(str);
+        return true;
+    }catch{
+        return false;
+    }
+}
+
+/* ANALYZE FUNCTION */
+async function analyze(){
+
+    const url = document.getElementById("urlInput").value.trim();
+    const button = document.getElementById("analyzeBtn");
+
+    if(!url){
+        alert("Please enter a URL.");
+        return;
+    }
+
+    if(!isValidURL(url)){
+        alert("Please enter a valid URL.");
+        return;
+    }
+
+    button.disabled = true;
+    button.textContent = "Analyzing...";
+
+    try{
+
+        const res = await fetch("http://127.0.0.1:5000/predict", {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({url})
+        });
+
+        const data = await res.json();
+
+        if(!res.ok){
+            alert(data.error || "Error occurred");
+            button.disabled = false;
+            button.textContent = "Analyze Website";
+            return;
+        }
+
+        /* DISPLAY RESULT */
+
+        const resultBox = document.getElementById("resultBox");
+        const riskText = document.getElementById("riskText");
+        const scoreText = document.getElementById("scoreText");
+        const messageText = document.getElementById("messageText");
+        const featureBox = document.getElementById("featureBox");
+        const gaugeFill = document.querySelector(".gauge-fill");
+        const gaugeScore = document.getElementById("gaugeScore");
+
+        resultBox.style.display = "block";
+
+        // ✅ CORRECT FIELDS
+        riskText.textContent = "Prediction: " + data.prediction.toUpperCase();
+        scoreText.textContent = "Confidence: " + (data.confidence * 100).toFixed(2) + "%";
+        messageText.textContent =
+    "Risk Score: " + data.risk_score +
+    " | Risk Level: " + data.risk_level;
+
+        /* GAUGE FIX */
+        const score = data.risk_score;
+        gaugeScore.textContent = score;
+
+        const rotation = score / 100 / 2;
+        gaugeFill.style.transform = `rotate(${rotation}turn)`;
+
+        /* COLOR FIX */
+        if(data.prediction === "phishing"){
+            riskText.style.color = "#ef4444";
+            gaugeFill.style.background = "#ef4444";
+        }else{
+            riskText.style.color = "#22c55e";
+            gaugeFill.style.background = "#22c55e";
+        }
+
+        /* FEATURES FIX (Readable) */
+        let html = "<h4>Website Features</h4><ul class='feature-list'>";
+
+        for(const key in data.features){
+            let val = data.features[key];
+
+            let display = (val === 1) ? "Yes" :
+                          (val === 0) ? "No" : val;
+
+            html += `<li><b>${key}</b>: ${display}</li>`;
+        }
+
+        html += "</ul>";
+
+        featureBox.innerHTML = html;
+
+    }catch(err){
+        alert("Server error.");
+    }
+
+    button.disabled = false;
+    button.textContent = "Analyze Website";
+}
+</script>
+
+</body>
+</html>
